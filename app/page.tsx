@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { listServices } from '@/lib/posts';
 
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   const services = listServices();
   return (
