@@ -26,11 +26,15 @@ npm run dev                    # http://localhost:3000/admin/blog
 | `npm run dev` | Development server |
 | `npm run build` / `npm start` | Production build and server |
 | `npm test` | Unit tests for the SEO engine, publish gate, slug rules, FAQ extraction |
-| `npm run smoke` | End-to-end check against a running server (31 assertions) |
+| `npm run smoke` | End-to-end check against a running server (34 assertions) |
 | `npm run db:reset` | Delete the SQLite file; services re-seed on next start |
+| `npm run seed:demo` | Publish one finished demo post against a running server |
 
 Storage is SQLite (`data/blog.db`), created and migrated on first run and seeded
-with the 15 live services. Uploads land in `public/uploads/`.
+with the 15 live services. Uploads land in `data/uploads/` and are served by the
+`/uploads/[...file]` route handler — **not** from `public/`, because Next only
+serves `public/` files that existed at build time, so runtime uploads would 404
+in production.
 
 ## One post, one URL
 
@@ -95,6 +99,7 @@ in the editor works.
 
 `POST /api/upload` accepts PNG/JPG/WebP/GIF up to 5MB, enforces 16:9 when
 `enforceAspect=16:9`, and compresses to WebP (animated GIFs pass through intact).
+Files are content-hashed, so the serving route can cache them immutably.
 Inline image insertion blocks until alt text is supplied. Cover alt text resolves
 at save time: explicit → photo description → title.
 

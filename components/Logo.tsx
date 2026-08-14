@@ -1,22 +1,46 @@
 /**
- * TatvaOps mark: four-petal pinwheel in the amber→red brand gradient, with the
- * "tatva:Ops" wordmark running amber→red→magenta→violet→blue.
+ * TatvaOps mark: four petals in a pinwheel — each petal is a squircle whose
+ * outer corner is fully rounded and whose inner corner is nearly square, with
+ * one amber→red gradient running across the whole group.
  */
+function petal(x: number, y: number, r: [number, number, number, number]): string {
+  const s = 52;
+  const [tl, tr, br, bl] = r;
+  return [
+    `M${x + tl} ${y}`,
+    `H${x + s - tr}`,
+    `a${tr} ${tr} 0 0 1 ${tr} ${tr}`,
+    `V${y + s - br}`,
+    `a${br} ${br} 0 0 1 ${-br} ${br}`,
+    `H${x + bl}`,
+    `a${bl} ${bl} 0 0 1 ${-bl} ${-bl}`,
+    `V${y + tl}`,
+    `a${tl} ${tl} 0 0 1 ${tl} ${-tl}`,
+    'Z',
+  ].join(' ');
+}
+
+export const LOGO_PETALS = [
+  petal(6, 6, [24, 18, 6, 18]),
+  petal(62, 6, [18, 24, 18, 6]),
+  petal(6, 62, [18, 6, 18, 24]),
+  petal(62, 62, [6, 18, 24, 18]),
+];
+
 export function LogoMark({ className = 'h-9 w-9' }: { className?: string }) {
   return (
     <svg viewBox="0 0 120 120" className={className} role="presentation" aria-hidden="true">
       <defs>
-        <linearGradient id="tp-petal" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="tp-petal" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="120" y2="120">
           <stop offset="0%" stopColor="#FDB913" />
-          <stop offset="55%" stopColor="#F5761A" />
+          <stop offset="45%" stopColor="#F5761A" />
           <stop offset="100%" stopColor="#EE2B24" />
         </linearGradient>
       </defs>
       <g fill="url(#tp-petal)">
-        <path d="M52 8c0-4.4-3.6-8-8-8H20C9 0 0 9 0 20v24c0 4.4 3.6 8 8 8h36c4.4 0 8-3.6 8-8V8Z" transform="translate(6 6)" />
-        <path d="M8 0C3.6 0 0 3.6 0 8v36c0 4.4 3.6 8 8 8h24c11 0 20-9 20-20V20C52 9 43 0 32 0H8Z" transform="translate(62 6)" />
-        <path d="M8 0C3.6 0 0 3.6 0 8v24c0 11 9 20 20 20h24c4.4 0 8-3.6 8-8V8c0-4.4-3.6-8-8-8H8Z" transform="translate(6 62)" />
-        <path d="M44 0H8C3.6 0 0 3.6 0 8v36c0 4.4 3.6 8 8 8h24c11 0 20-9 20-20V8c0-4.4-3.6-8-8-8Z" transform="translate(62 62)" />
+        {LOGO_PETALS.map((d) => (
+          <path key={d} d={d} />
+        ))}
       </g>
     </svg>
   );
@@ -26,9 +50,9 @@ export function Wordmark({ className = 'text-2xl' }: { className?: string }) {
   return (
     <span className={`font-display font-extrabold tracking-tight ${className}`}>
       <span className="bg-logo-gradient bg-clip-text text-transparent">tatva</span>
-      <span className="mx-[.08em] inline-flex flex-col justify-center gap-[.12em] align-middle">
-        <span className="block h-[.14em] w-[.14em] rounded-full bg-[#8B2BC4]" />
-        <span className="block h-[.14em] w-[.14em] rounded-full bg-[#8B2BC4]" />
+      <span className="mx-[.1em] inline-flex flex-col justify-center gap-[.1em] align-middle">
+        <span className="block h-[.13em] w-[.13em] rounded-full bg-[#8B2BC4]" />
+        <span className="block h-[.13em] w-[.13em] rounded-full bg-[#8B2BC4]" />
       </span>
       <span className="bg-[linear-gradient(90deg,#5B3BE0_0%,#2F6BFF_100%)] bg-clip-text text-transparent">
         Ops

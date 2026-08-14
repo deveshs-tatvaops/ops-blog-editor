@@ -184,6 +184,14 @@ const run = async () => {
   const goodUpload = await api('/api/upload', { method: 'POST', body: goodForm });
   check('cover upload accepts a 16:9 image', goodUpload.res.status === 200, goodUpload.json?.error ?? '');
 
+  // Uploads are served by a route handler, not public/ — public/ only serves
+  // files that existed at build time, so runtime uploads would 404 there.
+  const served = await api(upload.json.url);
+  check('an uploaded image is served after the build', served.res.status === 200, `status ${served.res.status}`);
+  check('served image carries the right content type', served.res.headers.get('content-type') === 'image/webp');
+  const traversal = await api('/uploads/..%2F..%2Fpackage.json');
+  check('upload route rejects path traversal', traversal.res.status === 404, `status ${traversal.res.status}`);
+
   const failed = results.filter((r) => !r.ok);
   console.log(`\n${results.length - failed.length}/${results.length} checks passed`);
   process.exit(failed.length ? 1 : 0);

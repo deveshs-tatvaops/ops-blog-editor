@@ -3,7 +3,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 
-export const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
+/**
+ * Uploads live outside public/ deliberately: Next only serves public/ files that
+ * existed at build time, so anything written at runtime would 404 in production.
+ * They are served by the /uploads/[...file] route handler instead.
+ */
+export const UPLOAD_DIR = process.env.BLOG_UPLOAD_DIR || path.join(process.cwd(), 'data', 'uploads');
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 export const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
