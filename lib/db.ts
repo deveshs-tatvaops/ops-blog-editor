@@ -1,10 +1,10 @@
 import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
+import { DB_PATH } from './runtime';
+import { SCHEMA_SQL } from './schema';
 
 export type DB = Database.Database;
-
-const DB_PATH = process.env.BLOG_DB_PATH || path.join(process.cwd(), 'data', 'blog.db');
 
 let instance: DB | null = null;
 
@@ -28,8 +28,7 @@ export const SERVICE_SEED: { slug: string; name: string }[] = [
 ];
 
 function migrate(db: DB) {
-  const sql = fs.readFileSync(path.join(process.cwd(), 'lib', 'schema.sql'), 'utf8');
-  db.exec(sql);
+  db.exec(SCHEMA_SQL);
 }
 
 function seed(db: DB) {

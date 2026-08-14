@@ -1,4 +1,9 @@
-PRAGMA journal_mode = WAL;
+/**
+ * Schema as a module rather than a .sql file read at runtime — serverless
+ * bundles only trace imported modules, so a stray readFileSync would break
+ * the first request on Vercel.
+ */
+export const SCHEMA_SQL = `PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS services (
@@ -62,3 +67,4 @@ CREATE TABLE IF NOT EXISTS post_secondary_services (
 );
 
 CREATE INDEX IF NOT EXISTS idx_pss_service ON post_secondary_services (service_id);
+`;

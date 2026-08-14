@@ -2,13 +2,15 @@ import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import { UPLOAD_DIR } from './runtime';
 
 /**
  * Uploads live outside public/ deliberately: Next only serves public/ files that
  * existed at build time, so anything written at runtime would 404 in production.
- * They are served by the /uploads/[...file] route handler instead.
+ * They are served by the /uploads/[...file] route handler instead. The directory
+ * itself comes from lib/runtime so serverless hosts land in /tmp.
  */
-export const UPLOAD_DIR = process.env.BLOG_UPLOAD_DIR || path.join(process.cwd(), 'data', 'uploads');
+export { UPLOAD_DIR } from './runtime';
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 export const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 

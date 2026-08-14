@@ -36,6 +36,36 @@ with the 15 live services. Uploads land in `data/uploads/` and are served by the
 serves `public/` files that existed at build time, so runtime uploads would 404
 in production.
 
+## Deploying
+
+The app writes a SQLite file and uploaded images to disk. Serverless hosts give
+each function a **read-only filesystem except `/tmp`**, so `lib/runtime.ts`
+redirects both to `/tmp/ops-blog/` when it detects Vercel or Lambda. That makes a
+preview deploy work out of the box — and makes storage **ephemeral**: `/tmp` is
+per-instance and wiped on redeploy and between cold starts. The admin header says
+so on any deploy where that applies.
+
+**Vercel, as a preview:** import the repo and deploy. No env vars are required;
+add `ANTHROPIC_API_KEY` to turn on the AI tools and `NEXT_PUBLIC_SITE_URL` so
+canonical URLs, the sitemap and schema point at the right host. `vercel.json`
+registers the scheduled-publish job as a daily cron.
+
+**For anything you want to keep**, the SQLite-on-local-disk assumption has to go.
+In rough order of effort:
+
+| Option | What changes |
+|---|---|
+| A host with a persistent volume (Fly, Railway, a VM, Docker) | Nothing — set `BLOG_DB_PATH` and `BLOG_UPLOAD_DIR` to paths on the volume |
+| Turso / libSQL | Swap `better-sqlite3` for `@libsql/client` in `lib/db.ts`; the SQL is unchanged |
+| Postgres | Rewrite `lib/db.ts` and the queries in `lib/posts.ts`; the schema ports directly |
+
+Uploads need the same treatment — point `BLOG_UPLOAD_DIR` at the volume, or move
+`lib/media.ts` to object storage (S3, R2, Vercel Blob) and return those URLs.
+
+`GET /api/health` reports which paths the server resolved, whether the database
+opened, whether uploads are writable, and whether the image pipeline works — start
+there when a deploy misbehaves.
+
 ## One post, one URL
 
 `primary_service_id` decides the canonical URL. `post_secondary_services` is a

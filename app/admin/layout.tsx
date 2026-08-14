@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
+import { STORAGE_IS_EPHEMERAL } from '@/lib/runtime';
 
 export const metadata = { title: 'Blog editor' };
 
@@ -26,6 +27,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
         </div>
       </header>
+      {STORAGE_IS_EPHEMERAL ? (
+        <div className="border-b border-warn/30 bg-warn/10 px-5 py-2.5 text-center text-xs font-medium text-warn">
+          Preview deployment — storage is a temporary SQLite file in <code>/tmp</code>. Posts and uploads
+          are wiped on redeploy and between cold starts. Set <code>BLOG_DB_PATH</code> to a mounted
+          volume, or move to a hosted database, before writing anything you want to keep.
+        </div>
+      ) : null}
       {children}
     </div>
   );
