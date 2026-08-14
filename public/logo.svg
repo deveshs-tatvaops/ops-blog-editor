@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" width="420" height="120">
+  <defs>
+    <linearGradient id="petal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FDB913"/>
+      <stop offset="55%" stop-color="#F5761A"/>
+      <stop offset="100%" stop-color="#EE2B24"/>
+    </linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F2451E"/>
+      <stop offset="34%" stop-color="#D62A6B"/>
+      <stop offset="62%" stop-color="#8B2BC4"/>
+      <stop offset="100%" stop-color="#2F6BFF"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#petal)">
+    <path d="M52 8c0-4.4-3.6-8-8-8H20C9 0 0 9 0 20v24c0 4.4 3.6 8 8 8h36c4.4 0 8-3.6 8-8V8Z" transform="translate(6 12)"/>
+    <path d="M8 0C3.6 0 0 3.6 0 8v36c0 4.4 3.6 8 8 8h24c11 0 20-9 20-20V20C52 9 43 0 32 0H8Z" transform="translate(62 12)"/>
+    <path d="M8 0C3.6 0 0 3.6 0 8v24c0 11 9 20 20 20h24c4.4 0 8-3.6 8-8V8c0-4.4-3.6-8-8-8H8Z" transform="translate(6 68)"/>
+    <path d="M44 0H8C3.6 0 0 3.6 0 8v36c0 4.4 3.6 8 8 8h24c11 0 20-9 20-20V8c0-4.4-3.6-8-8-8Z" transform="translate(62 68)"/>
+  </g>
+  <text x="140" y="82" font-family="Poppins, Inter, Helvetica, Arial, sans-serif" font-size="64" font-weight="800" fill="url(#word)">tatva</text>
+  <g fill="#8B2BC4">
+    <circle cx="322" cy="48" r="5"/>
+    <circle cx="322" cy="68" r="5"/>
+  </g>
+  <text x="334" y="82" font-family="Poppins, Inter, Helvetica, Arial, sans-serif" font-size="64" font-weight="800" fill="#2F6BFF">Ops</text>
+</svg>

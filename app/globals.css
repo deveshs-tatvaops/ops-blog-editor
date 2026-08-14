@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --page: #fdf7f1;
+  --surface: #ffffff;
+  --brand: #f26522;
+  --brand-2: #ff9a1f;
+  --indigo: #141345;
+  --ink: #1f2130;
+  --ink-muted: #6b6f80;
+  --line: #f0e3d8;
+}
+
+html,
+body {
+  background: var(--page);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn text-white shadow-[0_6px_18px_rgba(242,101,34,.25)];
+    background-image: linear-gradient(95deg, #ff9a1f 0%, #f2451e 100%);
+  }
+  .btn-primary:disabled {
+    background-image: none;
+    @apply bg-ink-faint/40 text-white/80 shadow-none;
+  }
+  .btn-ghost {
+    @apply btn border border-line bg-white text-ink hover:border-brand-300 hover:text-brand-600;
+  }
+  .btn-dark {
+    @apply btn bg-indigo950 text-white hover:bg-indigo900;
+  }
+  .card {
+    @apply rounded-2xl border border-line bg-white shadow-card;
+  }
+  .panel-title {
+    @apply font-display text-sm font-semibold uppercase tracking-[.12em] text-ink-muted;
+  }
+  .field-label {
+    @apply mb-1.5 block font-display text-sm font-semibold text-ink;
+  }
+  .input {
+    @apply w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-faint focus:border-brand-400 focus:ring-4 focus:ring-brand-100;
+  }
+  .textarea {
+    @apply input resize-y leading-relaxed;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-cream px-3 py-1 text-xs font-medium text-ink-muted;
+  }
+  .eyebrow {
+    @apply font-display text-xs font-semibold uppercase tracking-[.22em] text-brand-500;
+  }
+  .section-heading {
+    @apply font-display text-3xl font-bold leading-tight text-ink sm:text-4xl;
+  }
+}
+
+/* Long-form article typography for the public post page. */
+.prose-ops {
+  @apply text-[1.0625rem] leading-[1.75] text-ink;
+}
+.prose-ops h2 {
+  @apply mt-10 mb-3 font-display text-2xl font-bold text-ink;
+}
+.prose-ops h3 {
+  @apply mt-8 mb-2 font-display text-xl font-semibold text-ink;
+}
+.prose-ops p {
+  @apply my-4;
+}
+.prose-ops ul {
+  @apply my-4 list-disc space-y-2 pl-5;
+}
+.prose-ops ol {
+  @apply my-4 list-decimal space-y-2 pl-5;
+}
+.prose-ops a {
+  @apply font-medium text-brand-600 underline decoration-brand-200 underline-offset-4 hover:decoration-brand-500;
+}
+.prose-ops blockquote {
+  @apply my-6 rounded-r-xl border-l-4 border-brand-400 bg-cream px-5 py-3 italic text-ink-muted;
+}
+.prose-ops img {
+  @apply my-6 w-full rounded-2xl;
+}
+.prose-ops table {
+  @apply my-6 w-full border-collapse overflow-hidden rounded-xl text-sm;
+}
+.prose-ops th {
+  @apply bg-cream px-4 py-2.5 text-left font-display font-semibold;
+}
+.prose-ops td {
+  @apply border-t border-line px-4 py-2.5;
+}
+.prose-ops code {
+  @apply rounded bg-cream px-1.5 py-0.5 text-[.9em];
+}
+.prose-ops pre {
+  @apply my-6 overflow-x-auto rounded-xl bg-indigo950 p-4 text-sm text-white;
+}
+.prose-ops pre code {
+  @apply bg-transparent p-0 text-white;
+}
