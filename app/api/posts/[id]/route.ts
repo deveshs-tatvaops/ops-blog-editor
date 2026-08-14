@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { errorResponse } from '@/lib/api-error';
+import { notifySearchConsole } from '@/lib/indexing';
 import { deletePost, getPost, savePost } from '@/lib/posts';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +18,11 @@ export async function PUT(req: Request, { params }: Ctx) {
   const { id } = await params;
   try {
     const body = await req.json();
+    const wasPublished = getPost(Number(id))?.status === 'published';
     const post = savePost({ ...body, id: Number(id) });
+    if (post.status === 'published' && post.canonical_url && !wasPublished) {
+      void notifySearchConsole(post.canonical_url);
+    }
     return NextResponse.json({ post });
   } catch (err) {
     return errorResponse(err);
