@@ -1,27 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 132" width="420" height="132">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 128" width="512" height="128">
   <defs>
-    <linearGradient id="petal" gradientUnits="userSpaceOnUse" x1="6" y1="12" x2="120" y2="126">
-      <stop offset="0%" stop-color="#FDB913"/>
-      <stop offset="45%" stop-color="#F5761A"/>
-      <stop offset="100%" stop-color="#EE2B24"/>
+    <linearGradient id="tatva-mark" gradientUnits="userSpaceOnUse" x1="4" y1="18" x2="102" y2="116">
+      <stop offset="0%" stop-color="#FDB813"/><stop offset="38%" stop-color="#F58220"/><stop offset="72%" stop-color="#F2601E"/><stop offset="100%" stop-color="#EE2B24"/>
     </linearGradient>
-    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#F2451E"/>
-      <stop offset="34%" stop-color="#D62A6B"/>
-      <stop offset="62%" stop-color="#8B2BC4"/>
-      <stop offset="100%" stop-color="#2F6BFF"/>
+    <linearGradient id="tatva-word" gradientUnits="userSpaceOnUse" x1="130" y1="0" x2="500" y2="0">
+      <stop offset="0%" stop-color="#EE3046"/><stop offset="30%" stop-color="#D02A72"/><stop offset="58%" stop-color="#8B2BC4"/><stop offset="78%" stop-color="#5B3BE0"/><stop offset="100%" stop-color="#2F6BFF"/>
     </linearGradient>
   </defs>
-  <g fill="url(#petal)">
-    <path d="M30 12 H40 a18 18 0 0 1 18 18 V58 a6 6 0 0 1 -6 6 H24 a18 18 0 0 1 -18 -18 V36 a24 24 0 0 1 24 -24 Z"/>
-    <path d="M80 12 H90 a24 24 0 0 1 24 24 V46 a18 18 0 0 1 -18 18 H68 a6 6 0 0 1 -6 -6 V30 a18 18 0 0 1 18 -18 Z"/>
-    <path d="M24 68 H52 a6 6 0 0 1 6 6 V102 a18 18 0 0 1 -18 18 H30 a24 24 0 0 1 -24 -24 V86 a18 18 0 0 1 18 -18 Z"/>
-    <path d="M68 68 H96 a18 18 0 0 1 18 18 V96 a24 24 0 0 1 -24 24 H80 a18 18 0 0 1 -18 -18 V74 a6 6 0 0 1 6 -6 Z"/>
+  <g fill="url(#tatva-mark)" transform="translate(0 14) scale(0.82)">
+    <path d="M30 5 H30 a25 25 0 0 1 25 25 V50 a5 5 0 0 1 -5 5 H30 a25 25 0 0 1 -25 -25 V30 a25 25 0 0 1 25 -25 Z"/>
+    <path d="M90 5 H90 a25 25 0 0 1 25 25 V30 a25 25 0 0 1 -25 25 H70 a5 5 0 0 1 -5 -5 V30 a25 25 0 0 1 25 -25 Z"/>
+    <path d="M30 65 H50 a5 5 0 0 1 5 5 V90 a25 25 0 0 1 -25 25 H30 a25 25 0 0 1 -25 -25 V90 a25 25 0 0 1 25 -25 Z"/>
+    <path d="M70 65 H90 a25 25 0 0 1 25 25 V90 a25 25 0 0 1 -25 25 H90 a25 25 0 0 1 -25 -25 V70 a5 5 0 0 1 5 -5 Z"/>
   </g>
-  <text x="140" y="88" font-family="Poppins, Inter, Helvetica, Arial, sans-serif" font-size="64" font-weight="800" fill="url(#word)">tatva</text>
-  <g fill="#8B2BC4">
-    <circle cx="322" cy="54" r="5"/>
-    <circle cx="322" cy="74" r="5"/>
+  <text x="130" y="94" font-family="Poppins, Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="76" font-weight="700"
+        textLength="190" lengthAdjust="spacingAndGlyphs" fill="url(#tatva-word)">tatva</text>
+  <g fill="url(#tatva-word)">
+    <circle cx="334" cy="48" r="5.5"/>
+    <circle cx="334" cy="69" r="5.5"/>
+    <circle cx="334" cy="90" r="5.5"/>
   </g>
-  <text x="334" y="88" font-family="Poppins, Inter, Helvetica, Arial, sans-serif" font-size="64" font-weight="800" fill="#2F6BFF">Ops</text>
+  <text x="352" y="94" font-family="Poppins, Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="76" font-weight="700"
+        textLength="145" lengthAdjust="spacingAndGlyphs" fill="url(#tatva-word)">Ops</text>
 </svg>

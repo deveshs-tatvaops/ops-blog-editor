@@ -13,7 +13,11 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: { default: 'TatvaOps', template: '%s | TatvaOps' },
   description: 'TatvaOps — the trust layer for home and property services.',
-  icons: { icon: '/logo.svg' },
+  icons: {
+    // The square mark reads at favicon size; the wide lockup does not.
+    icon: [{ url: '/logo-mark.svg', type: 'image/svg+xml' }],
+    apple: '/apple-icon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

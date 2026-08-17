@@ -1,7 +1,7 @@
 /**
- * Minimal TypeScript loader so `node --test` can import the lib/ modules
- * directly. Resolves extensionless relative imports the way the bundler does,
- * then strips types with sucrase.
+ * Minimal TypeScript loader so `node --test` and the brand-asset script can
+ * import the lib/ modules directly. Resolves extensionless relative imports the
+ * way the bundler does, then strips types with sucrase.
  */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -11,13 +11,16 @@ import { transform } from 'sucrase';
 const CANDIDATES = ['.ts', '.tsx', '/index.ts'];
 
 export async function resolve(specifier, context, nextResolve) {
-  if (specifier.startsWith('.') && !path.extname(specifier)) {
-    const parentPath = fileURLToPath(context.parentURL);
+  const relative = specifier.startsWith('.');
+  const aliased = specifier.startsWith('@/');
+  if ((relative || aliased) && !path.extname(specifier)) {
+    const base = aliased
+      ? path.join(process.cwd(), specifier.slice(2))
+      : path.resolve(path.dirname(fileURLToPath(context.parentURL)), specifier);
     for (const ext of CANDIDATES) {
-      const candidate = path.resolve(path.dirname(parentPath), specifier + ext);
       try {
-        readFileSync(candidate);
-        return { url: pathToFileURL(candidate).href, shortCircuit: true, format: 'module' };
+        readFileSync(base + ext);
+        return { url: pathToFileURL(base + ext).href, shortCircuit: true, format: 'module' };
       } catch {
         // try the next extension
       }

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="tatva-mark" gradientUnits="userSpaceOnUse" x1="5" y1="5" x2="115" y2="115">
+      <stop offset="0%" stop-color="#FDB813"/><stop offset="38%" stop-color="#F58220"/><stop offset="72%" stop-color="#F2601E"/><stop offset="100%" stop-color="#EE2B24"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#tatva-mark)">
+    <path d="M30 5 H30 a25 25 0 0 1 25 25 V50 a5 5 0 0 1 -5 5 H30 a25 25 0 0 1 -25 -25 V30 a25 25 0 0 1 25 -25 Z"/>
+    <path d="M90 5 H90 a25 25 0 0 1 25 25 V30 a25 25 0 0 1 -25 25 H70 a5 5 0 0 1 -5 -5 V30 a25 25 0 0 1 25 -25 Z"/>
+    <path d="M30 65 H50 a5 5 0 0 1 5 5 V90 a25 25 0 0 1 -25 25 H30 a25 25 0 0 1 -25 -25 V90 a25 25 0 0 1 25 -25 Z"/>
+    <path d="M70 65 H90 a25 25 0 0 1 25 25 V90 a25 25 0 0 1 -25 25 H90 a25 25 0 0 1 -25 -25 V70 a5 5 0 0 1 5 -5 Z"/>
+  </g>
+</svg>

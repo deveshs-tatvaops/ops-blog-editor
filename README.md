@@ -134,6 +134,32 @@ in the editor works. The one exception is the cover generator, which falls back 
 deterministic branded artwork (still unique per post, chosen by hashing the post's
 own text) so the cover-image publish requirement can be satisfied without a key.
 
+## Branding
+
+`lib/brand.ts` is the single source for the logo — the petal geometry, both
+gradients and the SVG builders. Everything that draws it is generated from
+there, so the surfaces cannot drift apart:
+
+| Surface | Where |
+|---|---|
+| Site header and footer | `components/SiteChrome.tsx` → `<Logo />` |
+| Admin header | `app/admin/layout.tsx` |
+| Favicon and Apple touch icon | `app/layout.tsx` → `public/logo-mark.svg`, `public/apple-icon.png` |
+| Organisation schema (`publisher.logo`) | `lib/schema-jsonld.ts` |
+| Generated cover artwork | `lib/media.ts` stamps the mark and wordmark |
+| Static files | `public/logo.svg` (lockup), `public/logo-mark.svg`, `public/apple-icon.png`, `public/icon-512.png` |
+
+The files under `public/` are **generated** — run `npm run brand:assets` after
+changing `lib/brand.ts` rather than hand-editing them. The lockup sets
+`textLength` on the wordmark so the file renders at the same width on machines
+without Poppins.
+
+The mark is redrawn in code rather than embedded as a supplied asset. To use an
+official file instead, replace `public/logo.svg` and `public/logo-mark.svg`, then
+point `components/Logo.tsx` at them (`<img src="/logo.svg" />`) — the cover
+generator in `lib/media.ts` still needs inline SVG, so update `MARK_PATHS` there
+or inline the official path data into `lib/brand.ts`.
+
 ## Media
 
 `POST /api/upload` accepts PNG/JPG/WebP/GIF up to 5MB, enforces 16:9 when

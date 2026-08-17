@@ -62,7 +62,7 @@ export function buildJsonLd(post: Post, service: Service): Record<string, unknow
     publisher: {
       '@type': 'Organization',
       name: 'TatvaOps',
-      logo: { '@type': 'ImageObject', url: `${base}/logo.svg` },
+      logo: { '@type': 'ImageObject', url: `${base}/logo-mark.svg` },
     },
     keywords: [post.focus_keyword, ...post.secondary_keywords, ...post.tags].filter(Boolean).join(', '),
     articleSection: post.topic_label || service.name,

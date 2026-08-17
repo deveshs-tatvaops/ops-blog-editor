@@ -11,7 +11,8 @@
     "test": "node --test tests/engine.test.mjs",
     "smoke": "node scripts/smoke.mjs",
     "seed:demo": "node scripts/seed-demo.mjs",
-    "test:multi-instance": "node scripts/multi-instance.mjs"
+    "test:multi-instance": "node scripts/multi-instance.mjs",
+    "brand:assets": "node scripts/brand-assets.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",

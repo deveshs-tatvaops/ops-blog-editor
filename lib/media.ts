@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import sharp from 'sharp';
+import { MARK_GRADIENT, MARK_PATHS } from './brand';
 import { all, one, run } from './db';
 
 /**
@@ -188,8 +189,18 @@ export async function renderCoverImage(spec: CoverArtSpec, key: string): Promise
   <rect width="1280" height="720" fill="url(#bg)"/>
   <g>${motifPaths(spec.motif, seed)}</g>
   <rect width="1280" height="720" fill="#141345" fill-opacity=".28"/>
+  <defs>
+    <!-- Coordinates are in the mark's own space: the group below is scaled, and
+         userSpaceOnUse resolves against the transformed coordinate system. -->
+    <linearGradient id="mark" gradientUnits="userSpaceOnUse" x1="5" y1="5" x2="115" y2="115">
+      ${MARK_GRADIENT.map((stop) => `<stop offset="${stop.offset}" stop-color="${stop.color}"/>`).join('')}
+    </linearGradient>
+  </defs>
+  <g transform="translate(80 70) scale(0.5)" fill="url(#mark)">
+    ${MARK_PATHS.map((d) => `<path d="${d}"/>`).join('')}
+  </g>
   <g font-family="Poppins, Inter, Helvetica, Arial, sans-serif" fill="#ffffff">
-    <text x="80" y="140" font-size="26" font-weight="600" letter-spacing="6" fill-opacity=".85">TATVAOPS</text>
+    <text x="150" y="118" font-size="34" font-weight="700">tatva:Ops</text>
     ${lines
       .map(
         (line, i) =>
