@@ -7,7 +7,7 @@ export const metadata = { title: 'Edit post' };
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const post = getPost(Number(id));
+  const post = await getPost(Number(id));
   if (!post) notFound();
-  return <PostEditor services={listServices()} post={post} />;
+  return <PostEditor services={await listServices()} post={post} />;
 }

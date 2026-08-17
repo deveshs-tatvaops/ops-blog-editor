@@ -43,8 +43,8 @@ export async function POST(req: Request) {
     const { content_markdown, id } = await req.json();
     const draft = String(content_markdown ?? '');
 
-    const services = listServices();
-    const posts = listPostsForAdmin({ status: 'published' }).filter((p) => p.id !== id && p.service_slug);
+    const services = await listServices();
+    const posts = (await listPostsForAdmin({ status: 'published' })).filter((p) => p.id !== id && p.service_slug);
 
     const targets = [
       ...services.map((s) => ({ url: `/services/${s.slug}`, label: `${s.name} service page` })),

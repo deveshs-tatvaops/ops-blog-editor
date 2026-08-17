@@ -5,8 +5,8 @@ import { listServices } from '@/lib/posts';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Services' };
 
-export default function ServicesIndex() {
-  const services = listServices();
+export default async function ServicesIndex() {
+  const services = await listServices();
   return (
     <>
       <SiteHeader />

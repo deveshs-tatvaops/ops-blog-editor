@@ -50,8 +50,6 @@ Eight to fourteen weeks from design sign-off, assuming factory-made modular unit
 
 No. Milestone-linked payments tied to delivery and installation protect you if the schedule slips. A standard Bangalore schedule releases the final tenth only after snagging is closed.`;
 
-const { renderCoverImage } = await import('../lib/media.ts').catch(() => ({ renderCoverImage: null }));
-
 const post = {
   title: 'Interior Design Cost in Bangalore: A Real Breakdown',
   excerpt:
@@ -73,24 +71,18 @@ const post = {
   status: 'published',
 };
 
-// Use the AI cover generator when a key is configured; fall back to rendering
-// the same branded artwork locally so the seed works offline.
-const ai = await fetch(`${BASE}/api/ai/cover-image`, {
+// The cover endpoint art-directs with AI when a key is configured and falls
+// back to deterministic branded artwork when it isn't, so this works either way.
+const cover = await fetch(`${BASE}/api/ai/cover-image`, {
   method: 'POST',
   headers: { 'content-type': 'application/json' },
   body: JSON.stringify(post),
-}).catch(() => null);
-
-if (ai?.ok) {
-  post.cover_image_url = (await ai.json()).url;
-} else if (renderCoverImage) {
-  post.cover_image_url = (
-    await renderCoverImage(
-      { headline: 'Interior design cost in Bangalore', motif: 'panels', palette: ['#F2451E', '#141345'] },
-      post.title
-    )
-  ).url;
+});
+if (!cover.ok) {
+  console.error(`Cover generation failed: ${cover.status} ${await cover.text()}`);
+  process.exit(1);
 }
+post.cover_image_url = (await cover.json()).url;
 
 const res = await fetch(`${BASE}/api/posts`, {
   method: 'POST',

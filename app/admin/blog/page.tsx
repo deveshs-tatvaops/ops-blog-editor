@@ -22,7 +22,7 @@ export default async function AdminBlogList({
   searchParams: Promise<{ status?: string; q?: string }>;
 }) {
   const { status, q } = await searchParams;
-  const posts = listPostsForAdmin({
+  const posts = await listPostsForAdmin({
     status: (status as PostStatus) || undefined,
     q: q || undefined,
   });

@@ -10,7 +10,7 @@ export const maxDuration = 300;
 export async function POST(req: Request) {
   try {
     const ctx = await req.json();
-    const services = listServices()
+    const services = (await listServices())
       .map((s) => `- ${s.name}: /services/${s.slug}`)
       .join('\n');
 

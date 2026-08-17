@@ -4,8 +4,8 @@ import { listServices } from '@/lib/posts';
 
 export const dynamic = 'force-dynamic';
 
-export default function Home() {
-  const services = listServices();
+export default async function Home() {
+  const services = await listServices();
   return (
     <>
       <SiteHeader />

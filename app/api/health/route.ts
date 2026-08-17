@@ -1,42 +1,35 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
+import { listMedia } from '@/lib/media';
 import { listServices } from '@/lib/posts';
-import { DB_PATH, IS_SERVERLESS, STORAGE_IS_EPHEMERAL, UPLOAD_DIR } from '@/lib/runtime';
+import {
+  DATABASE_IS_REMOTE,
+  IS_SERVERLESS,
+  STORAGE_IS_EPHEMERAL,
+  describeDatabase,
+} from '@/lib/runtime';
 
 export const dynamic = 'force-dynamic';
 
-/** Deployment diagnostics: what the server can actually open and write. */
+/** Deployment diagnostics: what the server can actually reach and write. */
 export async function GET() {
   const report: Record<string, unknown> = {
     ok: true,
     serverless: IS_SERVERLESS,
+    database: describeDatabase(),
+    databaseIsShared: DATABASE_IS_REMOTE,
     storageIsEphemeral: STORAGE_IS_EPHEMERAL,
-    dbPath: DB_PATH,
-    uploadDir: UPLOAD_DIR,
     aiConfigured: Boolean(process.env.ANTHROPIC_API_KEY),
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL || '(default) https://ops.withtatva.ai',
   };
 
   try {
-    getDb();
-    report.database = { ok: true, services: listServices().length };
+    await getDb();
+    report.services = (await listServices()).length;
+    report.mediaItems = (await listMedia()).length;
   } catch (err) {
     report.ok = false;
-    report.database = { ok: false, error: err instanceof Error ? err.message : String(err) };
-  }
-
-  try {
-    const fs = await import('node:fs/promises');
-    const path = await import('node:path');
-    await fs.mkdir(UPLOAD_DIR, { recursive: true });
-    const probe = path.join(UPLOAD_DIR, '.health');
-    await fs.writeFile(probe, 'ok');
-    await fs.rm(probe);
-    report.uploadsWritable = true;
-  } catch (err) {
-    report.ok = false;
-    report.uploadsWritable = false;
-    report.uploadsError = err instanceof Error ? err.message : String(err);
+    report.databaseError = err instanceof Error ? err.message : String(err);
   }
 
   try {
@@ -47,6 +40,12 @@ export async function GET() {
     report.ok = false;
     report.imagePipeline = false;
     report.imagePipelineError = err instanceof Error ? err.message : String(err);
+  }
+
+  if (STORAGE_IS_EPHEMERAL) {
+    report.warning =
+      'No shared database configured. Each serverless instance has its own throwaway SQLite file, ' +
+      'so posts saved by one request are invisible to the next. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN.';
   }
 
   return NextResponse.json(report, { status: report.ok ? 200 : 500 });

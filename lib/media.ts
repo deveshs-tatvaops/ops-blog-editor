@@ -1,16 +1,13 @@
 import crypto from 'node:crypto';
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import sharp from 'sharp';
-import { UPLOAD_DIR } from './runtime';
+import { all, one, run } from './db';
 
 /**
- * Uploads live outside public/ deliberately: Next only serves public/ files that
- * existed at build time, so anything written at runtime would 404 in production.
- * They are served by the /uploads/[...file] route handler instead. The directory
- * itself comes from lib/runtime so serverless hosts land in /tmp.
+ * Images are stored in the database, not on disk. A serverless host gives every
+ * function instance its own filesystem, so a file written while handling the
+ * upload is invisible to the request that later renders the post. They are
+ * served by the /uploads/[...file] route.
  */
-export { UPLOAD_DIR } from './runtime';
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 export const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
@@ -27,6 +24,44 @@ export interface StoredImage {
   width: number;
   height: number;
   bytes: number;
+}
+
+export interface MediaRecord {
+  name: string;
+  mime: string;
+  bytes: Uint8Array;
+}
+
+async function store(
+  name: string,
+  mime: string,
+  data: Buffer,
+  width: number,
+  height: number
+): Promise<StoredImage> {
+  await run(
+    `INSERT INTO media (name, mime, bytes, width, height) VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(name) DO UPDATE SET mime = excluded.mime, bytes = excluded.bytes,
+       width = excluded.width, height = excluded.height`,
+    [name, mime, new Uint8Array(data), width, height]
+  );
+  return { url: `/uploads/${name}`, width, height, bytes: data.length };
+}
+
+export async function getMedia(name: string): Promise<MediaRecord | null> {
+  const row = await one('SELECT name, mime, bytes FROM media WHERE name = ?', [name]);
+  if (!row) return null;
+  const bytes = row.bytes as unknown;
+  return {
+    name: row.name as string,
+    mime: row.mime as string,
+    bytes: bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes as ArrayBuffer),
+  };
+}
+
+export async function listMedia(): Promise<{ name: string; mime: string }[]> {
+  const rows = await all('SELECT name, mime FROM media ORDER BY created_at DESC');
+  return rows.map((r) => ({ name: r.name as string, mime: r.mime as string }));
 }
 
 /**
@@ -53,28 +88,24 @@ export async function storeUpload(
     throw new MediaError(`Cover images must be 16:9 — this one is ${width}×${height}.`);
   }
 
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
   const hash = crypto.createHash('sha1').update(input).digest('hex').slice(0, 16);
 
   if (meta.pages && meta.pages > 1) {
-    const name = `${hash}.gif`;
-    await fs.writeFile(path.join(UPLOAD_DIR, name), input);
-    return { url: `/uploads/${name}`, width, height, bytes: input.length };
+    return store(`${hash}.gif`, 'image/gif', input, width, height);
   }
 
-  const name = `${hash}.webp`;
   const output = await sharp(input)
     .resize({ width: Math.min(width || 1600, 1600), withoutEnlargement: true })
     .webp({ quality: 82 })
     .toBuffer();
-  await fs.writeFile(path.join(UPLOAD_DIR, name), output);
   const outMeta = await sharp(output).metadata();
-  return {
-    url: `/uploads/${name}`,
-    width: outMeta.width ?? width,
-    height: outMeta.height ?? height,
-    bytes: output.length,
-  };
+  return store(
+    `${hash}.webp`,
+    'image/webp',
+    output,
+    outMeta.width ?? width,
+    outMeta.height ?? height
+  );
 }
 
 export interface CoverArtSpec {
@@ -100,7 +131,10 @@ function motifPaths(motif: CoverArtSpec['motif'], seed: number): string {
         .join('');
     case 'grid':
       return [0, 1, 2, 3, 4, 5]
-        .map((i) => `<rect x="${140 + i * 170}" y="${260 + jitter(i)}" width="120" height="300" rx="14" fill="#fff" fill-opacity=".12"/>`)
+        .map(
+          (i) =>
+            `<rect x="${140 + i * 170}" y="${260 + jitter(i)}" width="120" height="300" rx="14" fill="#fff" fill-opacity=".12"/>`
+        )
         .join('');
     case 'roofline':
       return `<path d="M80 640 L360 ${380 + jitter(1)} L640 640 L920 ${400 + jitter(2)} L1200 640" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="12" stroke-linejoin="round"/>`;
@@ -112,12 +146,14 @@ function motifPaths(motif: CoverArtSpec['motif'], seed: number): string {
         )
         .join('');
     default:
-      return [0, 1, 2, 3, 4]
-        .map(
-          (i) =>
-            `<rect x="${120 + i * 200}" y="${240 + jitter(i)}" width="150" height="${220 + jitter(i + 1)}" fill="none" stroke="#fff" stroke-opacity=".26" stroke-width="6"/>`
-        )
-        .join('') + '<path d="M0 700 H1280" stroke="#fff" stroke-opacity=".2" stroke-width="4"/>';
+      return (
+        [0, 1, 2, 3, 4]
+          .map(
+            (i) =>
+              `<rect x="${120 + i * 200}" y="${240 + jitter(i)}" width="150" height="${220 + jitter(i + 1)}" fill="none" stroke="#fff" stroke-opacity=".26" stroke-width="6"/>`
+          )
+          .join('') + '<path d="M0 700 H1280" stroke="#fff" stroke-opacity=".2" stroke-width="4"/>'
+      );
   }
 }
 
@@ -164,9 +200,7 @@ export async function renderCoverImage(spec: CoverArtSpec, key: string): Promise
   <rect x="80" y="${330 + lines.length * 78 - 40}" width="140" height="10" rx="5" fill="#F26522"/>
 </svg>`;
 
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
   const name = `cover-${crypto.createHash('sha1').update(key + svg).digest('hex').slice(0, 16)}.webp`;
   const output = await sharp(Buffer.from(svg)).webp({ quality: 88 }).toBuffer();
-  await fs.writeFile(path.join(UPLOAD_DIR, name), output);
-  return { url: `/uploads/${name}`, width: 1280, height: 720, bytes: output.length };
+  return store(name, 'image/webp', output, 1280, 720);
 }

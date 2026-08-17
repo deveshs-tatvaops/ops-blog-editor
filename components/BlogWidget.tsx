@@ -4,8 +4,8 @@ import { listPostsForService } from '@/lib/posts';
 import type { Service } from '@/lib/types';
 
 /** "From our blog" module for a service landing page. */
-export function BlogWidget({ service, limit = 4 }: { service: Service; limit?: number }) {
-  const posts = listPostsForService(service.id, limit);
+export async function BlogWidget({ service, limit = 4 }: { service: Service; limit?: number }) {
+  const posts = await listPostsForService(service.id, limit);
   if (!posts.length) return null;
 
   return (

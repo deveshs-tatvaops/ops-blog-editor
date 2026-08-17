@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const draft = String(content_markdown ?? '');
 
     // 1. Deterministic pass: duplicate content against our own published posts.
-    const published = listPostsForAdmin({ status: 'published' }).filter((p) => p.id !== id);
+    const published = (await listPostsForAdmin({ status: 'published' })).filter((p) => p.id !== id);
     const local = findLocalOverlap(draft, published);
     const matches: Match[] = local
       .filter((m) => m.overlapPercent >= 2)

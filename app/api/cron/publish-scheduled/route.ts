@@ -19,23 +19,23 @@ async function run(req: Request) {
     }
   }
 
-  const due = listDuePosts();
+  const due = await listDuePosts();
   const published: string[] = [];
   const failed: { id: number; title: string; blocking: string[] }[] = [];
 
   for (const post of due) {
     try {
-      const saved = savePost({ id: post.id, status: 'published', scheduled_for: null });
+      const saved = await savePost({ id: post.id, status: 'published', scheduled_for: null });
       published.push(saved.canonical_url || saved.slug);
       await notifySearchConsole(saved.canonical_url);
     } catch (err) {
       if (err instanceof PublishGateError) {
         const labels = err.blocking.map((b) => b.label);
-        flagPublishFailure(post.id, `Scheduled publish held back: ${labels.join(', ')}`);
+        await flagPublishFailure(post.id, `Scheduled publish held back: ${labels.join(', ')}`);
         failed.push({ id: post.id, title: post.title, blocking: labels });
       } else {
         const message = err instanceof Error ? err.message : 'Unknown error';
-        flagPublishFailure(post.id, `Scheduled publish failed: ${message}`);
+        await flagPublishFailure(post.id, `Scheduled publish failed: ${message}`);
         failed.push({ id: post.id, title: post.title, blocking: [message] });
       }
     }

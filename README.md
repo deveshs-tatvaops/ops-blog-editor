@@ -29,42 +29,49 @@ npm run dev                    # http://localhost:3000/admin/blog
 | `npm run smoke` | End-to-end check against a running server (34 assertions) |
 | `npm run db:reset` | Delete the SQLite file; services re-seed on next start |
 | `npm run seed:demo` | Publish one finished demo post against a running server |
+| `npm run test:multi-instance <a> <b>` | Prove two running instances share one database |
 
-Storage is SQLite (`data/blog.db`), created and migrated on first run and seeded
-with the 15 live services. Uploads land in `data/uploads/` and are served by the
-`/uploads/[...file]` route handler — **not** from `public/`, because Next only
-serves `public/` files that existed at build time, so runtime uploads would 404
-in production.
+Storage is libSQL (`data/blog.db` locally), created and migrated on first run and
+seeded with the 15 live services. Images are stored in the database and served by
+the `/uploads/[...file]` route — **not** from `public/`, which only serves files
+that existed at build time.
 
 ## Deploying
 
-The app writes a SQLite file and uploaded images to disk. Serverless hosts give
-each function a **read-only filesystem except `/tmp`**, so `lib/runtime.ts`
-redirects both to `/tmp/ops-blog/` when it detects Vercel or Lambda. That makes a
-preview deploy work out of the box — and makes storage **ephemeral**: `/tmp` is
-per-instance and wiped on redeploy and between cold starts. The admin header says
-so on any deploy where that applies.
+Storage is **libSQL** — the SQLite dialect, reachable either as a local file or
+as a hosted database over HTTP. That choice is what makes serverless deployment
+work, and it is not optional there:
 
-**Vercel, as a preview:** import the repo and deploy. No env vars are required;
-add `ANTHROPIC_API_KEY` to turn on the AI tools and `NEXT_PUBLIC_SITE_URL` so
-canonical URLs, the sitemap and schema point at the right host. `vercel.json`
-registers the scheduled-publish job as a daily cron.
+> A serverless host gives every function instance its own filesystem and routes
+> consecutive requests to different instances. With a local file, the request
+> that saves a post and the request that reads it back talk to **different
+> databases** — the save returns 201 and the very next page 404s. Posts, uploads
+> and the sitemap all need one shared database.
 
-**For anything you want to keep**, the SQLite-on-local-disk assumption has to go.
-In rough order of effort:
+**Vercel (or any serverless host):**
 
-| Option | What changes |
-|---|---|
-| A host with a persistent volume (Fly, Railway, a VM, Docker) | Nothing — set `BLOG_DB_PATH` and `BLOG_UPLOAD_DIR` to paths on the volume |
-| Turso / libSQL | Swap `better-sqlite3` for `@libsql/client` in `lib/db.ts`; the SQL is unchanged |
-| Postgres | Rewrite `lib/db.ts` and the queries in `lib/posts.ts`; the schema ports directly |
+1. Create a libSQL database — [Turso](https://turso.tech) has a free tier; any
+   libSQL server works.
+2. Set `TURSO_DATABASE_URL` (`libsql://…`) and `TURSO_AUTH_TOKEN` in the project's
+   environment variables.
+3. Optionally set `NEXT_PUBLIC_SITE_URL` so canonical URLs, the sitemap and schema
+   point at the right host, and `ANTHROPIC_API_KEY` for the AI tools.
+4. Deploy. `vercel.json` registers the scheduled-publish job as a daily cron.
 
-Uploads need the same treatment — point `BLOG_UPLOAD_DIR` at the volume, or move
-`lib/media.ts` to object storage (S3, R2, Vercel Blob) and return those URLs.
+Without step 2 the app still boots, but the admin header carries a red banner
+saying data will not survive, and `/api/health` reports
+`storageIsEphemeral: true` with the fix. **Uploaded and generated images live in
+the database too** (`media` table), so they are shared across instances and need
+no object storage.
 
-`GET /api/health` reports which paths the server resolved, whether the database
-opened, whether uploads are writable, and whether the image pipeline works — start
-there when a deploy misbehaves.
+**Anywhere with a real filesystem** (a VM, Fly, Railway, Docker) needs none of
+this: leave the variables unset and it uses `data/blog.db`, or point
+`BLOG_DB_PATH` at a volume.
+
+`GET /api/health` reports which database the server resolved, whether it is
+shared, how many services and images it can see, and whether the image pipeline
+works — start there when a deploy misbehaves. `npm run test:multi-instance <urlA>
+<urlB>` proves two instances see the same data.
 
 ## One post, one URL
 
@@ -123,7 +130,9 @@ construction.
 | `POST /api/ai/cover-image` | Art-directs and renders a branded 16:9 WebP, seeded per post so no two match |
 
 Without `ANTHROPIC_API_KEY` these return 503 with a clear message; everything else
-in the editor works.
+in the editor works. The one exception is the cover generator, which falls back to
+deterministic branded artwork (still unique per post, chosen by hashing the post's
+own text) so the cover-image publish requirement can be satisfied without a key.
 
 ## Media
 
@@ -142,10 +151,11 @@ app/
   api/{posts,ai,upload,cron}/…     API routes
 components/editor/                 PostEditor + the four sidebar panels
 lib/
-  db.ts schema.sql posts.ts        SQLite layer, single write path in savePost()
+  db.ts schema.ts posts.ts         libSQL layer, single write path in savePost()
+  runtime.ts                       resolves which database this deployment talks to
   seo.ts publish-gate.ts           the two shared engines
   schema-jsonld.ts                 Article + BreadcrumbList + FAQ when present
-  media.ts indexing.ts             uploads/WebP, Search Console Indexing API
+  media.ts indexing.ts             database-backed images, Search Console Indexing API
   ai/                              prompt, client, similarity
 ```
 

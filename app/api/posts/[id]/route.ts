@@ -9,7 +9,7 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Ctx) {
   const { id } = await params;
-  const post = getPost(Number(id));
+  const post = await getPost(Number(id));
   if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json({ post });
 }
@@ -18,8 +18,8 @@ export async function PUT(req: Request, { params }: Ctx) {
   const { id } = await params;
   try {
     const body = await req.json();
-    const wasPublished = getPost(Number(id))?.status === 'published';
-    const post = savePost({ ...body, id: Number(id) });
+    const wasPublished = (await getPost(Number(id)))?.status === 'published';
+    const post = await savePost({ ...body, id: Number(id) });
     if (post.status === 'published' && post.canonical_url && !wasPublished) {
       void notifySearchConsole(post.canonical_url);
     }
@@ -31,6 +31,6 @@ export async function PUT(req: Request, { params }: Ctx) {
 
 export async function DELETE(_req: Request, { params }: Ctx) {
   const { id } = await params;
-  deletePost(Number(id));
+  await deletePost(Number(id));
   return NextResponse.json({ ok: true });
 }

@@ -12,7 +12,7 @@ type Props = { params: Promise<{ service: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { service: slug } = await params;
-  const service = getServiceBySlug(slug);
+  const service = await getServiceBySlug(slug);
   if (!service) return { title: 'Not found' };
   return {
     title: service.name,
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function ServiceLanding({ params }: Props) {
   const { service: slug } = await params;
-  const service = getServiceBySlug(slug);
+  const service = await getServiceBySlug(slug);
   if (!service) notFound();
 
   return (

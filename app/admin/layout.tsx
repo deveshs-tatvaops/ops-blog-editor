@@ -28,10 +28,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </header>
       {STORAGE_IS_EPHEMERAL ? (
-        <div className="border-b border-warn/30 bg-warn/10 px-5 py-2.5 text-center text-xs font-medium text-warn">
-          Preview deployment — storage is a temporary SQLite file in <code>/tmp</code>. Posts and uploads
-          are wiped on redeploy and between cold starts. Set <code>BLOG_DB_PATH</code> to a mounted
-          volume, or move to a hosted database, before writing anything you want to keep.
+        <div className="border-b border-bad/30 bg-bad/10 px-5 py-3 text-center text-xs font-medium text-bad">
+          <strong className="font-semibold">No shared database configured.</strong> Every serverless
+          instance is using its own throwaway file, so a post saved by one request is invisible to the
+          next — saving works, then the editor 404s. Set <code>TURSO_DATABASE_URL</code> and{' '}
+          <code>TURSO_AUTH_TOKEN</code> (any hosted libSQL database works), then redeploy.{' '}
+          <a href="/api/health" className="underline">
+            Check /api/health
+          </a>
         </div>
       ) : null}
       {children}

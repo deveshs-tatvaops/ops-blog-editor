@@ -15,7 +15,7 @@ type Props = { params: Promise<{ service: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { service, slug } = await params;
-  const post = getPublishedPostByPath(service, slug);
+  const post = await getPublishedPostByPath(service, slug);
   if (!post) return { title: 'Not found' };
   const canonical = post.canonical_url || canonicalFor(post.service_slug, post.slug);
   return {
@@ -45,14 +45,14 @@ function formatDate(value: string | null) {
 
 export default async function BlogPostPage({ params }: Props) {
   const { service: serviceSlug, slug } = await params;
-  const post = getPublishedPostByPath(serviceSlug, slug);
+  const post = await getPublishedPostByPath(serviceSlug, slug);
   // Only the primary service's path resolves — secondary services surface the post
   // in their listings but never get a second working URL.
   if (!post) notFound();
 
-  const service = getService(post.primary_service_id)!;
-  const ctaService = getService(post.cta_service_id) ?? service;
-  const related = listRelatedPosts(post, 3);
+  const service = (await getService(post.primary_service_id))!;
+  const ctaService = (await getService(post.cta_service_id)) ?? service;
+  const related = await listRelatedPosts(post, 3);
   const jsonld = post.schema_jsonld || JSON.stringify(buildJsonLd(post, service));
   const alt = post.cover_image_alt || post.cover_photo_description || post.title;
 

@@ -5,10 +5,10 @@ import { canonicalFor, siteUrl } from '@/lib/slug';
 export const dynamic = 'force-dynamic';
 
 /** Published posts only — "internal" posts keep a live URL but stay out of the sitemap. */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const services = listServices();
-  const posts = listPublishedForSitemap();
+  const services = await listServices();
+  const posts = await listPublishedForSitemap();
 
   return [
     { url: base, changeFrequency: 'weekly', priority: 1 },

@@ -10,11 +10,12 @@
     "db:reset": "node scripts/reset-db.mjs",
     "test": "node --test tests/engine.test.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "seed:demo": "node --import ./tests/ts-register.mjs scripts/seed-demo.mjs"
+    "seed:demo": "node scripts/seed-demo.mjs",
+    "test:multi-instance": "node scripts/multi-instance.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
-    "better-sqlite3": "^13.0.3",
+    "@libsql/client": "^0.17.4",
     "marked": "^18.0.9",
     "next": "^15.5.23",
     "react": "^19.2.8",
@@ -22,7 +23,6 @@
     "sharp": "^0.35.3"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
